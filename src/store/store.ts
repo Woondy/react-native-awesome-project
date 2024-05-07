@@ -10,7 +10,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  whitelist: ['auth'],
+  whitelist: ['auth.isLoggedIn', 'auth.token'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
