@@ -1,38 +1,41 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { LoginRequest, LoginResponse } from '../../types';
+import { LoginRequest } from '../../types';
+import { loginService, refreshTokenService } from '../../api/services/authServices';
+import { getAsyncThunkErrorMessage } from '../../utils/error';
+import { getRefreshToken } from '../selectors/authSelectors';
 
 export const loginAsync = createAsyncThunk(
   'auth/loginAsync',
-  async ({ username, password }: LoginRequest) => {
+  async (credentials: LoginRequest, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to login');
-      }
-
-      const data: LoginResponse = await response.json();
-
-      return data;
+      const response = await loginService(credentials);
+      return response.data;
     } catch (error) {
-      throw error;
+      return rejectWithValue(getAsyncThunkErrorMessage(error));
+    }
+  }
+);
+
+export const refreshTokenAsync = createAsyncThunk(
+  'auth/refreshTokenAsync',
+  async (_, { rejectWithValue }) => {
+    try {
+      const refreshToken = getRefreshToken();
+      const response = await refreshTokenService(refreshToken);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(getAsyncThunkErrorMessage(error));
     }
   }
 );
 
 export const logoutAsync = createAsyncThunk(
   'auth/logoutAsync',
-  async (_) => {
+  async (_, { rejectWithValue }) => {
     try {
-      //
+      // 
     } catch (error) {
-      throw error;
+      return rejectWithValue(getAsyncThunkErrorMessage(error));
     }
   }
 );

@@ -1,5 +1,5 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { loginAsync, logoutAsync } from '../thunks/authThunks';
+import { createSlice } from '@reduxjs/toolkit';
+import { loginAsync, logoutAsync, refreshTokenAsync } from '../thunks/authThunks';
 import { User } from '../../types';
 
 interface AuthState {
@@ -7,7 +7,6 @@ interface AuthState {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
-  tokenExpiration: number | null;
   error: string | null;
 }
 
@@ -16,7 +15,6 @@ const initialState: AuthState = {
   user: null,
   accessToken: null,
   refreshToken: null,
-  tokenExpiration: null,
   error: null,
 };
 
@@ -24,41 +22,40 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setAuthData(state, action: PayloadAction<AuthState>) {
-      const { isLoggedIn, user, accessToken, refreshToken, tokenExpiration, error } = action.payload;
-      state.isLoggedIn = isLoggedIn;
-      state.user = user;
-      state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-      state.tokenExpiration = tokenExpiration;
-      state.error = error;
+    resetAuthState: (state) => {
+      Object.assign(state, initialState);
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loginAsync.fulfilled, (state, action) => {
-      const { user, accessToken, refreshToken, tokenExpiration } = action.payload;
-      authSlice.caseReducers.setAuthData(state, {
-        payload: { isLoggedIn: true, user, accessToken, refreshToken, tokenExpiration, error: null },
-        type: 'auth/setAuthData',
+    builder
+      .addCase(loginAsync.pending, (state) => {
+        Object.assign(state, initialState);
+      })
+      .addCase(loginAsync.fulfilled, (state, action) => {
+        const { user, accessToken, refreshToken } = action.payload;
+        state.isLoggedIn = true;
+        state.user = user;
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
+      })
+      .addCase(loginAsync.rejected, (state, action) => {
+        state.error = action.error.message || 'Login failed';
+      })
+      .addCase(refreshTokenAsync.fulfilled, (state, action) => {
+        const { accessToken } = action.payload;
+        state.accessToken = accessToken;
+      })
+      .addCase(refreshTokenAsync.rejected, (state, action) => {
+        state.error = action.error.message || 'Refresh Token failed';
+      })
+      .addCase(logoutAsync.fulfilled, (state) => {
+        Object.assign(state, initialState);
+      })
+      .addCase(logoutAsync.rejected, (state, action) => {
+        console.error('Logout failed:', action.error);
       });
-    });
-    builder.addCase(loginAsync.rejected, (state, action) => {
-      authSlice.caseReducers.setAuthData(state, {
-        payload: { isLoggedIn: false, user: null, accessToken: null, refreshToken: null, tokenExpiration: null, error: action.error.message || 'Login failed' },
-        type: 'auth/setAuthData',
-      });
-    });
-    builder.addCase(logoutAsync.fulfilled, (state) => {
-      authSlice.caseReducers.setAuthData(state, {
-        payload: initialState,
-        type: 'auth/setAuthData',
-      });
-    });
-    builder.addCase(logoutAsync.rejected, (state, action) => {
-      console.error('Logout failed:', action.error);
-    });
   },
 });
 
-export const { setAuthData } = authSlice.actions;
+export const { resetAuthState } = authSlice.actions;
 export default authSlice.reducer;
