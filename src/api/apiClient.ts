@@ -2,9 +2,11 @@ import axios, { AxiosInstance } from 'axios';
 import { store } from '../store/store';
 import { logoutAsync, refreshTokenAsync } from '../store/thunks/authThunks';
 import { getAccessToken } from '../store/selectors/authSelectors';
+import { API_URL } from '@env';
+import { ENDPOINTS } from './endpoints';
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL,
 });
 
 apiClient.interceptors.request.use(
@@ -28,7 +30,7 @@ apiClient.interceptors.response.use(
   response => response,
   async function (error) {
     const originalRequest = error.config;
-    const refreshTokenUrl = '/refresh';
+    const refreshTokenUrl = ENDPOINTS.refreshToken;
     
     if (error.response && error.response.status === 401) {
       if (originalRequest.url === refreshTokenUrl || originalRequest.isRetry) {
