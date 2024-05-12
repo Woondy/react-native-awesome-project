@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text } from 'react-native';
 import { NavigationProps } from '../navigation/NavigationTypes';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loginAsync } from '../store/thunks/authThunks';
+import { Button } from 'react-native-paper';
 
 const LoginScreen: React.FC<{ navigation: NavigationProps<'Dashboard'> }> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -24,8 +25,8 @@ const LoginScreen: React.FC<{ navigation: NavigationProps<'Dashboard'> }> = ({ n
     <View>
       <Text>Login Screen</Text>
       <Text>{errorMessage}</Text>
-      <Button title="Login" onPress={handleLoginPress} />
-      <Button title="Register" onPress={handleRegisterPress} />
+      <Button mode="contained" onPress={handleLoginPress}>Login</Button>
+      <Button mode="contained" onPress={handleRegisterPress}>Register</Button>
     </View>
   );
 };

@@ -3,4 +3,9 @@ module.exports = {
   plugins: [
     ['module:react-native-dotenv']
   ],
+  env: {
+    production: {
+      plugins: ['react-native-paper/babel'],
+    },
+  },
 };
