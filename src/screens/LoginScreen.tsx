@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loginAsync } from '../store/thunks/authThunks';
 import { Button } from 'react-native-paper';
 
-const LoginScreen: React.FC<{ navigation: NavigationProps<'Dashboard'> }> = ({ navigation }) => {
+const LoginScreen: React.FC<{ navigation: NavigationProps<'Login'> }> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const errorMessage = useAppSelector(state => state.auth.error);
 

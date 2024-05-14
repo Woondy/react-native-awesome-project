@@ -2,9 +2,11 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import { reduxStorage } from '../utils/storage';
 import authSlice from './slices/authSlice';
+import themeSlice from './slices/themeSlice';
 
 const rootReducer = combineReducers({
   auth: authSlice,
+  theme: themeSlice,
 });
 
 const persistConfig = {
